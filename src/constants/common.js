@@ -1,0 +1,2 @@
+export const ARBISCAN_END_POINT = 'https://api.arbiscan.io'
+export const ARBISCAN_SECRET_KEY = '2BFRKDIBJVUDRJ5QYQRIU9VEKGIA6BK5QW'
