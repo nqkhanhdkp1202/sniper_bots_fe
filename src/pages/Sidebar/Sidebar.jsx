@@ -7,6 +7,7 @@ function Sidebar() {
   const { reset } = useContext(AppContext)
 
   const handleLogout = () => {
+
     reset()
   }
 
@@ -59,6 +60,7 @@ function Sidebar() {
               onClick={handleLogout}
               type="button"
               className="nav-link bg-transparent shadow-none border-0"
+              disabled
             >
               <div className="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i className="ni ni-button-power text-dark text-sm opacity-10" />

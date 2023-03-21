@@ -1,0 +1,8 @@
+@use '../../scss' as *;
+
+input {
+  outline: 0;
+  border: 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid $black-cl;
+}

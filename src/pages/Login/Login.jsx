@@ -68,7 +68,7 @@ function Login() {
           <div className="container">
             <div className="row">
               <div className="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                <div classNam e="card card-plain">
+                <div className="card card-plain">
                   <div className="card-header pb-0 text-start bg-transparent">
                     <h4 className="font-weight-bolder">Login</h4>
                   </div>

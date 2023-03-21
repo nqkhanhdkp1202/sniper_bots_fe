@@ -1,0 +1,18 @@
+@use "../../scss" as *;
+
+.btn {
+  margin-bottom: 0 !important;
+  outline: 0;
+  color: $white-cl;
+  &:hover{
+    color: $white-cl;
+  }
+}
+
+.btn.start {
+  background-color: #17AD37;
+}
+
+.btn.stop {
+  background-color: #ff0000;
+}

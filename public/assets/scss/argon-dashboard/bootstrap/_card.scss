@@ -3,6 +3,7 @@
 //
 
 .card {
+  height: 100%;
   // scss-docs-start card-css-vars
   --#{$prefix}card-spacer-y: #{$card-spacer-y};
   --#{$prefix}card-spacer-x: #{$card-spacer-x};
