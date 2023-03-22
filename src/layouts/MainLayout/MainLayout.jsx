@@ -5,7 +5,7 @@ import Sidebar from '../../pages/Sidebar/Sidebar'
 export default function MainLayout() {
   return (
     <div>
-      <div className="min-height-300 bg-primary position-absolute w-100"></div>
+      <div className="min-height-300 position-absolute w-100"></div>
       <Sidebar />
       <Outlet />
     </div>

@@ -1,0 +1,9 @@
+@use '../../scss' as *;
+
+.checkbox {
+  @include flex(center, center);
+  label {
+    margin-left: 0.75rem;
+    margin-bottom: 0;
+  }
+}
