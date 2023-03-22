@@ -11,15 +11,16 @@ const CheckBox = props => {
 
   return (
     <>
-      <div className="checkbox">
+      <div className="checkbox form-check">
         <input
+          className="form-check-input"
           type="checkbox"
           id={props.id}
           name={props.name}
           value={props.value}
           onChange={handleCheckBox}
         />
-        <label htmlFor={props.id} children={props.title} />
+        <label className="form-check-label" htmlFor={props.id} children={props.title} />
       </div>
       <input
         type="text"
