@@ -34,7 +34,6 @@ body {
     rgba(77, 77, 242, 1) 0%,
     rgba(0, 212, 255, 1) 100%
   );
-  color: $black-cl;
 }
 
 .App {
@@ -42,40 +41,21 @@ body {
   height: 100vh;
 }
 
-@media only screen and (max-width: 600px) {
-  body {
-    margin-bottom: 3rem;
-  }
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-a {
-  text-decoration: none;
-  color: unset;
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-@media (hover: hover) {
-  a:hover {
-    color: #ff0000;
-  }
-}
-button,
-input {
-  outline: 0;
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
 }
 
-ul {
-  list-style-type: none;
-}
-
-img {
-  max-width: 100%;
-}
-
-iframe {
-  border: 0;
-}
-
-.container {
-  max-width: 1660px;
-  margin: auto;
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
