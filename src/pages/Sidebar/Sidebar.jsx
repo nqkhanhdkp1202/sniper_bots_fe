@@ -7,7 +7,6 @@ function Sidebar() {
   const { reset } = useContext(AppContext)
 
   const handleLogout = () => {
-
     reset()
   }
 
