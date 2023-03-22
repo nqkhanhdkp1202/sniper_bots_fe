@@ -2,14 +2,17 @@
 import {useEffect, useRef, useState} from 'react'
 import Button from '../../components/Button/Button'
 import CheckBox from '../../components/CheckBox/CheckBox'
-import Input from '../../components/Input/Input'
 import Logger from '../../components/Logger'
-import {useLog} from '../../contexts/logger.context'
+import {useLog,LogProvider} from '../../contexts/logger.context'
 import './swaptoken.scss'
+import {ABI} from '../../mocks/mockToken';
 
 function SwapToken() {
   const {logContent} = useLog()
   const messagesEndRef = useRef(null)
+  const [tokenAddress, setTokenAddress] = useState("");
+
+
   const [config, setConfig] = useState({
     buyTimes: 1,
     enableStoploss: 0,
@@ -50,9 +53,34 @@ function SwapToken() {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
   }
 
+  const handleCheckToken = async () =>{
+    const Web3 = require('web3');
+    const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/501382af7fcb4e54a19008d8b9aab298'));
+
+    const contractABI = ABI;
+    const contractAddress = tokenAddress;
+    const myContract = new web3.eth.Contract(contractABI, contractAddress);
+
+    myContract.methods.symbol().call()
+      .then(result => {
+       console.log(result);
+      });
+
+    myContract.methods.totalSupply().call()
+      .then(result => {
+        console.log(result);
+      });
+    myContract.methods.name().call()
+      .then(result => {
+        console.log(result);
+      });
+  }
+
   useEffect(() => {
     scrollToBottom()
   }, [logContent])
+
+  console.log(tokenAddress);
 
   return (
     <main className="main-content position-relative border-radius-lg">
@@ -69,14 +97,14 @@ function SwapToken() {
                     <div>
                       <p className="h6 mb-0">Token Address</p>
                       <div className="input-group">
-                        <Input className="form-control" style={{minWidth: '29rem'}} defaultValue={config.tokenAddress}
-                               type="text" aria-label="Recipient's username" aria-describedby="button-addon2"/>
-                        <button className="btn btn-secondary mb-0" type="button" id="button-addon2">Check token</button>
+                        <input className="form-control" style={{minWidth: '29rem'}}
+                               type="text" onChange={e => setTokenAddress(e.target.value)}/>
+                        <Button onClick={handleCheckToken} className="btn btn-secondary mb-0" type="button" id="button-addon2">Check token</Button>
                       </div>
                     </div>
                     <div>
                       <p className="h6 mb-0">Max Gas</p>
-                      <Input className="form-control" type="number" defaultValue={config.gasUsage}/>
+                      <input className="form-control" type="number" defaultValue={config.gasUsage}/>
                     </div>
                   </div>
 
@@ -168,9 +196,9 @@ function SwapToken() {
                         </ul>
                       </div>
                       <div className="d-flex flex-column align-items-center">
-                        <CheckBox title="V1" id="V1"/>
-                        <CheckBox title="V2" id="V2"/>
-                        <CheckBox title="V3" id="V3"/>
+                        <CheckBox title="V1" id="1"/>
+                        <CheckBox title="V2" id="2"/>
+                        <CheckBox title="V3" id="3"/>
                       </div>
                     </div>
                     <div className="d-grid">
@@ -187,6 +215,7 @@ function SwapToken() {
                         writable
                         title="Token amount buy"
                         id="tokenamount"
+                        defaultValue={config.ttokenBuy}
                       />
                     </div>
                     <div className="d-flex justify-content-between mb-3">
@@ -194,6 +223,7 @@ function SwapToken() {
                         writable
                         title="Only buy if token price is less than ($)"
                         id="onlybuy"
+                        defaultValue={config.priceBuy}
                       />
                     </div>
                     <div className="d-flex justify-content-between mb-3">
@@ -201,6 +231,7 @@ function SwapToken() {
                         writable
                         title="Max slippage"
                         id="maxslippage"
+                        defaultValue={config.maxSlippage}
                       />
                     </div>
                     <div className="d-flex justify-content-between mb-3">
@@ -208,6 +239,7 @@ function SwapToken() {
                         writable
                         title="GWEI to use for trade"
                         id="gwei"
+                        defaultValue={config.gwei}
                       />
                     </div>
                     <div className="d-flex justify-content-between mb-3">
@@ -215,6 +247,7 @@ function SwapToken() {
                         writable
                         title="Amount of threads running simultaneously (1 or more)"
                         id="amount-threads"
+                        defaultValue={config.amountThreads}
                       />
                     </div>
                     <div className="d-flex justify-content-between mb-3">
@@ -222,6 +255,7 @@ function SwapToken() {
                         writable
                         title="Amount of seconds to wait till sell after buying"
                         id="amount-second"
+                        defaultValue={config.secWait}
                       />
                     </div>
                   </div>
@@ -233,6 +267,7 @@ function SwapToken() {
                           writable
                           title="Custom slippage for selling(%, 1=1%)"
                           id="custom-slippage"
+                          defaultValue={config.sellSlippage}
                         />
                       </div>
                       <div className="d-flex justify-content-between mb-3">
@@ -240,14 +275,23 @@ function SwapToken() {
                           writable
                           title="Let the bot sell when my loss is this much % (stoploss)"
                           id="stop-loss"
+                          defaultValue={config.sstoploss}
                         />
                       </div>
                       <div className="d-flex justify-content-between mb-3">
-                        <CheckBox writable title="Amount of seconds to wait till sell after buying" id="await"/>
+                        <CheckBox
+                          writable
+                          title="Amount of seconds to wait till sell after buying"
+                          id="await"
+                          defaultValue={config.secWait}
+                        />
                       </div>
                       <div className="d-flex justify-content-between mb-3">
-                        <CheckBox writable title="Sell when token price is this much % higher than start"
-                                  id="sell-higher"/>
+                        <CheckBox
+                          writable
+                          title="Sell when token price is this much % higher than start"
+                          defaultValue={config.priceSell}
+                          id="sell-higher"/>
                       </div>
                       <div className="d-flex justify-content-between mb-3">
                         <CheckBox

@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { createContext, useState } from 'react'
 
-const LogContext = createContext()
+const LogContext = createContext();
 
 const LogProvider = ({ children, ...restProps }) => {
   const [logContent, setLogContent] = useState(['Connect metamask...'])
