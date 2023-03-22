@@ -1,11 +1,11 @@
-export default function Loading() {
+export default function Loading({ width = 30, height = 30 }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       style={{ margin: 'auto', background: 'transparent', display: 'block' }}
-      width={30}
-      height={30}
+      width={width}
+      height={height}
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid"
     >
