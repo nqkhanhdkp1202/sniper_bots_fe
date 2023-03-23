@@ -3,14 +3,19 @@ import {useEffect, useRef, useState} from 'react'
 import Button from '../../components/Button/Button'
 import CheckBox from '../../components/CheckBox/CheckBox'
 import Logger from '../../components/Logger'
-import {useLog,LogProvider} from '../../contexts/logger.context'
+import {useLog} from '../../contexts/logger.context'
 import './swaptoken.scss'
-import {ABI} from '../../mocks/mockToken';
+import {ABI_JSON, PROVIDER_URL} from "../../constants/common";
+import axios from "axios";
 
 function SwapToken() {
   const {logContent} = useLog()
   const messagesEndRef = useRef(null)
-  const [tokenAddress, setTokenAddress] = useState("");
+  const [tokenInfo, setTokenInfo] = useState({
+    address: "",
+    ABI: "",
+    infuraUrl: "",
+  });
 
 
   const [config, setConfig] = useState({
@@ -26,7 +31,6 @@ function SwapToken() {
     secWait: 1,
     maxSlippage: 10,
     gwei: 5,
-    infuraUrl: 'https://bsc-dataseed.binance.org/',
     addedUrl: '',
     enableProfitsell: 1,
     pprofitSell: 10,
@@ -53,24 +57,30 @@ function SwapToken() {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
   }
 
-  const handleCheckToken = async () =>{
+  const handleCheckToken = async () => {
     const Web3 = require('web3');
-    const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/501382af7fcb4e54a19008d8b9aab298'));
-
-    const contractABI = ABI;
-    const contractAddress = tokenAddress;
+    let providerURL;
+    for (let [key, value] of Object.entries(PROVIDER_URL,ABI_JSON)) {
+      if (key === tokenInfo.infuraUrl) {
+        providerURL = value;
+      }
+    }
+    const web3 = new Web3(new Web3.providers.HttpProvider(providerURL));
+    const contractABI = ABI_JSON;
+    const contractAddress = tokenInfo?.address;
     const myContract = new web3.eth.Contract(contractABI, contractAddress);
 
-    myContract.methods.symbol().call()
-      .then(result => {
-       console.log(result);
-      });
-
-    myContract.methods.totalSupply().call()
+    myContract.methods.symbol?.().call()
       .then(result => {
         console.log(result);
       });
-    myContract.methods.name().call()
+
+    myContract.methods.totalSupply?.().call()
+      .then(result => {
+        console.log(result);
+      });
+
+    myContract.methods.name?.().call()
       .then(result => {
         console.log(result);
       });
@@ -80,7 +90,7 @@ function SwapToken() {
     scrollToBottom()
   }, [logContent])
 
-  console.log(tokenAddress);
+  console.log(tokenInfo);
 
   return (
     <main className="main-content position-relative border-radius-lg">
@@ -97,14 +107,29 @@ function SwapToken() {
                     <div>
                       <p className="h6 mb-0">Token Address</p>
                       <div className="input-group">
-                        <input className="form-control" style={{minWidth: '29rem'}}
-                               type="text" onChange={e => setTokenAddress(e.target.value)}/>
-                        <Button onClick={handleCheckToken} className="btn btn-secondary mb-0" type="button" id="button-addon2">Check token</Button>
+                        <input className="form-control" style={{minWidth: '19rem'}}
+                               type="text" onChange={e => setTokenInfo({...tokenInfo, address: e.target.value})}/>
+                        <Button onClick={handleCheckToken} className="btn btn-secondary mb-0" type="button"
+                                id="button-addon2">Check token</Button>
                       </div>
                     </div>
                     <div>
+                      <p className="h6 mb-0">Select network</p>
+                      <select className="form-select network" aria-label="Default select example"
+                              onChange={e => setTokenInfo({...tokenInfo, infuraUrl: e.target.value})}>
+                        <option disabled selected value="">Select Network</option>
+                        <option value="ethereum">Ethereum Mainnet</option>
+                        <option value="binance">Binance Chain Mainnet</option>
+                        <option value="arbitrum">Arbitrum One</option>
+                        <option value="polygon">Polygon Mainnet</option>
+                        <option value="goerli">Goerli Testnet</option>
+                        <option value="optimism">Optimism</option>
+                      </select>
+                    </div>
+                    <div>
                       <p className="h6 mb-0">Max Gas</p>
-                      <input className="form-control" type="number" defaultValue={config.gasUsage}/>
+                      <input className="form-control" type="number" style={{maxWidth: '8rem'}}
+                             defaultValue={config.gasUsage}/>
                     </div>
                   </div>
 
