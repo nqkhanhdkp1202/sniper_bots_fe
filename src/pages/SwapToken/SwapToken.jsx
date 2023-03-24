@@ -5,9 +5,8 @@ import CheckBox from '../../components/CheckBox/CheckBox'
 import Logger from '../../components/Logger'
 import { useLog } from '../../contexts/logger.context'
 import './swaptoken.scss'
-import {CHAIN_ID, PROVIDER_URL} from '../../constants/common'
-import axiosClient from "../../api/axiosClient";
-import {chainlistRPC} from "../../api/chainlistRPC";
+import { CHAIN_ID, PROVIDER_URL } from '../../constants/common'
+import { chainlistRPC } from '../../api/chainlistRPC'
 
 function SwapToken() {
   const { logContent } = useLog()
@@ -17,7 +16,7 @@ function SwapToken() {
     ABI: '',
     infuraUrl: ''
   })
-  const [RPCList, setRPCList] = useState([]);
+  const [RPCList, setRPCList] = useState([])
 
   const [config, setConfig] = useState({
     buyTimes: 1,
@@ -53,33 +52,34 @@ function SwapToken() {
     getClipboard: 1
   })
 
+  const Web3 = require('web3')
+  let providerURL = ''
+  for (let [key, value] of Object.entries(PROVIDER_URL)) {
+    if (key === tokenInfo.infuraUrl) {
+      providerURL = value
+    }
+  }
+  const web3 = new Web3(providerURL)
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const handleCheckToken = async () => {
-    const Web3 = require('web3')
-    let providerURL
-    for (let [key, value] of Object.entries(PROVIDER_URL)) {
-      if (key === tokenInfo.infuraUrl) {
-        providerURL = value
-      }
-    }
-    const web3 = await new Web3(new Web3.providers.HttpProvider(providerURL))
-    const contractABI = JSON.parse(tokenInfo?.ABI);
+    const contractABI = JSON.parse(tokenInfo?.ABI)
     const contractAddress = tokenInfo?.address
     const myContract = await new web3.eth.Contract(contractABI, contractAddress)
     const symbol = await myContract.methods.symbol?.().call()
     const name = await myContract.methods.name?.().call()
-    if(symbol || name ) console.log(`Token is: ${name}(${symbol})`);
-
+    // eslint-disable-next-line no-console
+    if (symbol || name) console.log(`Token is: ${name}(${symbol})`)
   }
 
   useEffect(() => {
     scrollToBottom()
   }, [logContent])
 
-  useEffect(()=> {
+  useEffect(() => {
     const getRPCs = async () => {
       let chainID
       for (let [key, value] of Object.entries(CHAIN_ID)) {
@@ -87,11 +87,14 @@ function SwapToken() {
           chainID = value
         }
       }
-      const response = await chainlistRPC.getRPCList(chainID);
-      setRPCList(response.pageProps.chain.rpc);
+      if (!chainID) setRPCList([])
+      else {
+        const response = await chainlistRPC.getRPCList(chainID)
+        setRPCList(response.pageProps.chain.rpc)
+      }
     }
-    getRPCs();
-  },[tokenInfo.infuraUrl])
+    getRPCs()
+  }, [tokenInfo.infuraUrl])
 
   return (
     <main className="main-content position-relative border-radius-lg">
@@ -185,17 +188,15 @@ function SwapToken() {
                         <ul
                           className="dropdown-menu"
                           aria-labelledby="dropdownMenuButton"
-                          style={{maxHeight: "20rem", overflowY: "scroll"}}
+                          style={{ maxHeight: '20rem', overflowY: 'scroll' }}
                         >
-                          {
-                            RPCList.map( e => (
-                              <li>
-                            <span className="dropdown-item m-0">
-                              {e.url};
-                            </span>
-                              </li>
-                            ))
-                          }
+                          {RPCList.map((e, i) => (
+                            <li key={i}>
+                              <span className="dropdown-item m-0">
+                                {e.url};
+                              </span>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                       <Button
