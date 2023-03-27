@@ -21,12 +21,20 @@ const CheckBox = props => {
           onChange={handleCheckBox}
           checked={props.checked ? props.checked : null}
         />
-        <label className="form-check-label" htmlFor={props.id} children={props.title} />
+        <label
+          className="form-check-label"
+          htmlFor={props.id}
+          children={props.title}
+        />
       </div>
       <input
         type="text"
         disabled={!checked}
-        style={{ display: `${props.writable ? 'block' : 'none'}`, textAlign:"center" }}
+        style={{
+          display: `${props.writable ? 'block' : 'none'}`,
+          textAlign: 'center',
+          width: '4rem'
+        }}
         {...props}
       />
     </>
@@ -36,7 +44,7 @@ const CheckBox = props => {
 CheckBox.propTypes = {
   title: PropTypes.string,
   writable: PropTypes.bool,
-  value: PropTypes.string,
+  value: PropTypes.string
 }
 
 export default CheckBox

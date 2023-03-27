@@ -107,13 +107,13 @@ function SwapToken() {
               </div>
               <div className="card-body p-4 d-flex">
                 <div className="col-8 form-swap pe-4 ps-1">
-                  <div className="d-flex justify-content-between mb-3">
+                  <div className="token-controller d-flex justify-content-between mb-3">
                     <div>
                       <p className="h6 mb-0">Token Address</p>
                       <div className="input-group">
                         <input
                           className="form-control"
-                          style={{ minWidth: '19rem' }}
+                          style={{}}
                           type="text"
                           onChange={e =>
                             setTokenInfo({
@@ -136,8 +136,8 @@ function SwapToken() {
                       <p className="h6 mb-0">Contract ABI</p>
                       <div className="input-group">
                         <input
-                          className="form-control"
-                          style={{ maxWidth: '10rem' }}
+                          className="abi-input form-control"
+                          style={{ minWidth: '8rem' }}
                           type="text"
                           onChange={e =>
                             setTokenInfo({
@@ -204,7 +204,7 @@ function SwapToken() {
                         children="Check latency"
                       />
                       <Button
-                        className="btn bg-gradient-light me-5 mb-0"
+                        className="btn bg-gradient-light mb-0"
                         children="Check all latency"
                       />
                       <div className="dropdown mx-4">
@@ -238,18 +238,6 @@ function SwapToken() {
                         <CheckBox title="V1" id="1" />
                         <CheckBox title="V2" id="2" />
                         <CheckBox title="V3" id="3" />
-                      </div>
-                    </div>
-                    <div className="d-grid">
-                      <div className="d-flex">
-                        <Button
-                          className="start btn btn-outline-success px-4 mx-4"
-                          children="START"
-                        />
-                        <Button
-                          className="stop btn btn-outline-danger px-4"
-                          children="STOP"
-                        />
                       </div>
                     </div>
                   </div>
@@ -352,14 +340,26 @@ function SwapToken() {
                           title="Only sell token, don't buy"
                         />
                       </div>
-                      <div>
-                        <p className="h6 mb-0">Max Gas</p>
-                        <input
-                          className="form-control"
-                          type="number"
-                          style={{ maxWidth: '20rem' }}
-                          defaultValue={config.gasUsage}
-                        />
+                      <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <p className="h6 mb-0 me-2">Max Gas</p>
+                          <input
+                            className="form-control"
+                            type="number"
+                            style={{ maxWidth: '15rem' }}
+                            defaultValue={config.gasUsage}
+                          />
+                        </div>
+                        <div className="d-flex align-items-center">
+                          <Button
+                            className="start btn btn-outline-success px-4 mx-4 mb-0"
+                            children="START"
+                          />
+                          <Button
+                            className="stop btn btn-outline-danger px-4 mb-0"
+                            children="STOP"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="w-35 ps-4">
