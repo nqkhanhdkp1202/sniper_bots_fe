@@ -15,5 +15,23 @@ export const rules = {
       value: true,
       message: 'Mật khẩu là bắt buộc nhập'
     }
+  },
+  tokenAddress: {
+    required: {
+      value: true,
+      message: 'Địa chỉ token là trường bắt buộc'
+    },
+  },
+  ABI: {
+    required: {
+      value: true,
+      message: 'ABI Contract là trường bắt buộc'
+    },
+  },
+  infuraUrl: {
+    required: {
+      value: true,
+      message: 'Địa chỉ endpoint là trường bắt buộc'
+    },
   }
 }

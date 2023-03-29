@@ -1,12 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Button from '../../components/Button/Button'
 import CheckBox from '../../components/CheckBox/CheckBox'
 import Logger from '../../components/Logger'
 import { useLog } from '../../contexts/logger.context'
 import './swaptoken.scss'
-import { CHAIN_ID, PROVIDER_URL } from '../../constants/common'
-import { chainlistRPC } from '../../api/chainlistRPC'
+import { PROVIDER_URL } from '../../constants/common'
+import Loading from '../../components/Loading'
+import { Controller, useForm } from 'react-hook-form'
+import { rules } from '../../constants/rules'
+import ErrorMessage from '../../components/ErrorMessage'
+import queryString from 'query-string'
+import { dexList } from '../../api/dexList'
 
 function SwapToken() {
   const { logContent } = useLog()
@@ -16,7 +21,22 @@ function SwapToken() {
     ABI: '',
     infuraUrl: ''
   })
-  const [RPCList, setRPCList] = useState([])
+  const [token, setToken] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [DEXList, setDEXList] = useState([])
+
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      tokenAddress: '',
+      ABI: '',
+      infuraUrl: ''
+    }
+  })
 
   const [config, setConfig] = useState({
     buyTimes: 1,
@@ -66,35 +86,33 @@ function SwapToken() {
   }
 
   const handleCheckToken = async () => {
+    setIsLoading(true)
+    // eslint-disable-next-line no-console
     const contractABI = JSON.parse(tokenInfo?.ABI)
     const contractAddress = tokenInfo?.address
     const myContract = await new web3.eth.Contract(contractABI, contractAddress)
-    const symbol = await myContract.methods.symbol?.().call()
-    const name = await myContract.methods.name?.().call()
     // eslint-disable-next-line no-console
-    if (symbol || name) console.log(`Token is: ${name}(${symbol})`)
+    if (myContract === {}) {
+      setToken(myContract)
+      searchDEX()
+    }
+    setIsLoading(false)
   }
+
+  const searchDEX = async () => {
+    try {
+      const response = await dexList.getPair(`${tokenInfo.address}`)
+      setDEXList(response)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  console.log(DEXList)
 
   useEffect(() => {
     scrollToBottom()
   }, [logContent])
-
-  useEffect(() => {
-    const getRPCs = async () => {
-      let chainID
-      for (let [key, value] of Object.entries(CHAIN_ID)) {
-        if (key === tokenInfo.infuraUrl) {
-          chainID = value
-        }
-      }
-      if (!chainID) setRPCList([])
-      else {
-        const response = await chainlistRPC.getRPCList(chainID)
-        setRPCList(response.pageProps.chain.rpc)
-      }
-    }
-    getRPCs()
-  }, [tokenInfo.infuraUrl])
 
   return (
     <main className="main-content position-relative border-radius-lg">
@@ -103,7 +121,7 @@ function SwapToken() {
           <div className="col-12">
             <div className="card mb-4">
               <div className="card-header pb-0 d-flex justify-content-between align-items-center">
-                <h6>SWAP TOKEN</h6>
+                <h5 className="h5 mb-0">SWAP TOKEN</h5>
               </div>
               <div className="card-body p-4 d-flex">
                 <div className="col-8 form-swap pe-4 ps-1">
@@ -123,14 +141,15 @@ function SwapToken() {
                           }
                         />
                         <Button
-                          onClick={handleCheckToken}
+                          onClick={searchDEX}
                           className="btn btn-secondary mb-0"
                           type="button"
                           id="button-addon2"
                         >
-                          Check token
+                          {isLoading ? <Loading /> : 'Check Token'}
                         </Button>
                       </div>
+                      <ErrorMessage errors={errors} name="email" />
                     </div>
                     <div>
                       <p className="h6 mb-0">Contract ABI</p>
@@ -148,31 +167,41 @@ function SwapToken() {
                         />
                       </div>
                     </div>
-                    <div>
-                      <p className="h6 mb-0">Select network</p>
-                      <select
-                        className="form-select network"
-                        aria-label="Default select example"
-                        onChange={e =>
-                          setTokenInfo({
-                            ...tokenInfo,
-                            infuraUrl: e.target.value
-                          })
-                        }
-                      >
-                        <option disabled selected value="">
-                          Select Network
-                        </option>
-                        <option value="ethereum">Ethereum Mainnet</option>
-                        <option value="binance">Binance Chain Mainnet</option>
-                        <option value="arbitrum">Arbitrum One</option>
-                        <option value="polygon">Polygon Mainnet</option>
-                        <option value="goerli">Goerli Testnet</option>
-                        <option value="optimism">Optimism</option>
-                      </select>
+                    <div className="d-flex align-items-center">
+                      <div className="dropdown me-4">
+                        <button
+                          className="btn bg-gradient-warning dropdown-toggle m-0"
+                          type="button"
+                          id="dropdownMenuButton"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          Select Dex
+                        </button>
+                        <ul
+                          className="dropdown-menu"
+                          aria-labelledby="dropdownMenuButton"
+                        >
+                          {DEXList.length !== 0
+                            ? DEXList.pairs.map((e, index) => (
+                                <li key={index}>
+                                  <span className="dropdown-item m-0">
+                                    {e.dexId}
+                                  </span>
+                                </li>
+                              ))
+                            : null}
+                        </ul>
+                      </div>
+                      <div className="d-flex flex-column align-items-start">
+                        {DEXList.length !== 0
+                          ? DEXList.pairs.map((e, index) => (
+                              <CheckBox title={e.labels} id={e.labels} />
+                            ))
+                          : null}
+                      </div>
                     </div>
                   </div>
-
                   <div className="d-flex justify-content-between mb-3">
                     <div className="d-flex mb-3 align-items-center">
                       <div className="dropdown me-2">
@@ -189,15 +218,7 @@ function SwapToken() {
                           className="dropdown-menu"
                           aria-labelledby="dropdownMenuButton"
                           style={{ maxHeight: '20rem', overflowY: 'scroll' }}
-                        >
-                          {RPCList.map((e, i) => (
-                            <li key={i}>
-                              <span className="dropdown-item m-0">
-                                {e.url};
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
+                        ></ul>
                       </div>
                       <Button
                         className="btn bg-gradient-light me-2 mb-0"
@@ -207,38 +228,6 @@ function SwapToken() {
                         className="btn bg-gradient-light mb-0"
                         children="Check all latency"
                       />
-                      <div className="dropdown mx-4">
-                        <button
-                          className="btn bg-gradient-warning dropdown-toggle m-0"
-                          type="button"
-                          id="dropdownMenuButton"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          Select Dex
-                        </button>
-                        <ul
-                          className="dropdown-menu"
-                          aria-labelledby="dropdownMenuButton"
-                        >
-                          <li>
-                            <span className="dropdown-item m-0">Uniswap</span>
-                          </li>
-                          <li>
-                            <span className="dropdown-item m-0">
-                              Pancake Swap
-                            </span>
-                          </li>
-                          <li>
-                            <span className="dropdown-item m-0">SushiSwap</span>
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="d-flex flex-column align-items-center">
-                        <CheckBox title="V1" id="1" />
-                        <CheckBox title="V2" id="2" />
-                        <CheckBox title="V3" id="3" />
-                      </div>
                     </div>
                   </div>
                   <hr className="horizontal dark m-3" />
@@ -371,25 +360,25 @@ function SwapToken() {
                         />
                       </div>
                       <div className="container text-center ps-3 gap-1">
-                        <p className="h6">Force sell </p>
+                        <p className="h6">Force sell (%) </p>
                         <div className="row">
                           <Button
                             className="col-6 btn btn-primary"
-                            children="100%"
+                            children="100"
                           />
                           <Button
                             className="col-6 btn btn-primary"
-                            children="50%"
+                            children="50"
                           />
                         </div>
                         <div className="row">
                           <Button
                             className="col-6 btn btn-primary "
-                            children="25%"
+                            children="25"
                           />
                           <Button
                             className="col-6 btn btn-primary"
-                            children="10%"
+                            children="10"
                           />
                         </div>
                       </div>
