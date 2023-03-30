@@ -1,44 +1,23 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react'
 import Button from '../../components/Button/Button'
 import CheckBox from '../../components/CheckBox/CheckBox'
 import Logger from '../../components/Logger'
 import { useLog } from '../../contexts/logger.context'
 import './swaptoken.scss'
-import { PROVIDER_URL } from '../../constants/common'
+import {BLOCKCHAIN_INFO} from "../../constants/common";
 import Loading from '../../components/Loading'
-import { Controller, useForm } from 'react-hook-form'
-import { rules } from '../../constants/rules'
-import ErrorMessage from '../../components/ErrorMessage'
-import queryString from 'query-string'
 import { dexList } from '../../api/dexList'
 
 function SwapToken() {
   const { logContent } = useLog()
   const messagesEndRef = useRef(null)
-  const [tokenInfo, setTokenInfo] = useState({
-    address: '',
-    ABI: '',
-    infuraUrl: ''
-  })
+  const [tokenAddress, setTokenAddress] = useState('');
   const [token, setToken] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [DEXList, setDEXList] = useState([])
 
-  const {
-    control,
-    handleSubmit,
-    getValues,
-    formState: { errors }
-  } = useForm({
-    defaultValues: {
-      tokenAddress: '',
-      ABI: '',
-      infuraUrl: ''
-    }
-  })
-
-  const [config, setConfig] = useState({
+  // eslint-disable-next-line no-unused-vars
+  const [config] = useState({
     buyTimes: 1,
     enableStoploss: 0,
     enableTokenBuy: 0,
@@ -72,43 +51,54 @@ function SwapToken() {
     getClipboard: 1
   })
 
-  const Web3 = require('web3')
-  let providerURL = ''
-  for (let [key, value] of Object.entries(PROVIDER_URL)) {
-    if (key === tokenInfo.infuraUrl) {
-      providerURL = value
-    }
-  }
-  const web3 = new Web3(providerURL)
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleCheckToken = async () => {
+  useEffect(() => {
+    const handleCheckToken = async () => {
+      // eslint-disable-next-line no-console
+      try {
+        let connector,contractABI;
+        const contractAddress = tokenAddress;
+          if (DEXList.length !== 0 && DEXList.pairs !== null) {
+            connector = BLOCKCHAIN_INFO[DEXList.pairs[0].platformId].funcInitial().web3;
+            contractABI = BLOCKCHAIN_INFO[DEXList.pairs[0].platformId].getABIContract(contractAddress,connector);
+        }
+        console.log(connector,contractABI,contractAddress);
+        const myContract = new connector.eth.Contract(
+          contractABI,
+          contractAddress
+        )
+        // if (Object) {
+        //   setToken(myContract)
+        //   console.log(token)
+        // }
+      } catch (e) {
+        setToken({})
+        // eslint-disable-next-line no-console
+        console.log(e)
+      }
+      // eslint-disable-next-line no-console
+    }
+    handleCheckToken()
+  }, [tokenAddress])
+
+  console.log(BLOCKCHAIN_INFO["ethereum"]);
+  console.log(DEXList)
+  const searchDEX = async () => {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    const contractABI = JSON.parse(tokenInfo?.ABI)
-    const contractAddress = tokenInfo?.address
-    const myContract = await new web3.eth.Contract(contractABI, contractAddress)
-    // eslint-disable-next-line no-console
-    if (myContract === {}) {
-      setToken(myContract)
-      searchDEX()
+    try {
+      const response = await dexList.getPair(`${tokenAddress}`)
+      setDEXList(response)
+      // eslint-disable-next-line no-console
+    } catch (err) {
+      setDEXList([])
+      // eslint-disable-next-line no-console
+      console.log(err)
     }
     setIsLoading(false)
   }
-
-  const searchDEX = async () => {
-    try {
-      const response = await dexList.getPair(`${tokenInfo.address}`)
-      setDEXList(response)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  console.log(DEXList)
 
   useEffect(() => {
     scrollToBottom()
@@ -131,13 +121,9 @@ function SwapToken() {
                       <div className="input-group">
                         <input
                           className="form-control"
-                          style={{}}
+                          style={{ minWidth: '20rem' }}
                           type="text"
-                          onChange={e =>
-                            setTokenInfo({
-                              ...tokenInfo,
-                              address: e.target.value
-                            })
+                          onChange={e => setTokenAddress(e.target.value)
                           }
                         />
                         <Button
@@ -146,59 +132,70 @@ function SwapToken() {
                           type="button"
                           id="button-addon2"
                         >
-                          {isLoading ? <Loading /> : 'Check Token'}
+                          {isLoading ? (
+                            <Loading width="20" height="20" color="#ffffff" />
+                          ) : (
+                            'Check Token'
+                          )}
                         </Button>
                       </div>
-                      <ErrorMessage errors={errors} name="email" />
+                      {/*<ErrorMessage errors="" name="email" />*/}
                     </div>
-                    <div>
-                      <p className="h6 mb-0">Contract ABI</p>
-                      <div className="input-group">
-                        <input
-                          className="abi-input form-control"
-                          style={{ minWidth: '8rem' }}
-                          type="text"
-                          onChange={e =>
-                            setTokenInfo({
-                              ...tokenInfo,
-                              ABI: e.target.value
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
+                    {/*<div>*/}
+                    {/*  <p className="h6 mb-0">Contract ABI</p>*/}
+                    {/*  <div className="input-group">*/}
+                    {/*    <input*/}
+                    {/*      className="abi-input form-control"*/}
+                    {/*      style={{ minWidth: '8rem' }}*/}
+                    {/*      type="text"*/}
+                    {/*      onChange={e =>*/}
+                    {/*        setTokenInfo({*/}
+                    {/*          ...tokenInfo,*/}
+                    {/*          ABI: e.target.value*/}
+                    {/*        })*/}
+                    {/*      }*/}
+                    {/*    />*/}
+                    {/*  </div>*/}
+                    {/*</div>*/}
                     <div className="d-flex align-items-center">
-                      <div className="dropdown me-4">
-                        <button
-                          className="btn bg-gradient-warning dropdown-toggle m-0"
-                          type="button"
-                          id="dropdownMenuButton"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          Select Dex
-                        </button>
+                      <div className="dropdown me-4 mt-4">
+                        {isLoading ? (
+                          <Loading />
+                        ) : (
+                          <>
+                            <button
+                              className="btn bg-gradient-warning dropdown-toggle m-0"
+                              type="button"
+                              id="dropdownMenuButton"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              Select DEX
+                            </button>
+                          </>
+                        )}
                         <ul
                           className="dropdown-menu"
                           aria-labelledby="dropdownMenuButton"
                         >
-                          {DEXList.length !== 0
+                          {DEXList.length !== 0 && DEXList.pairs !== null
                             ? DEXList.pairs.map((e, index) => (
-                                <li key={index}>
+                                <li key={index} className="">
                                   <span className="dropdown-item m-0">
-                                    {e.dexId}
+                                    {`${e.dexId.toUpperCase()}: ${
+                                      e.baseToken.symbol
+                                    } to ${e.quoteTokenSymbol} ${
+                                      e.labels
+                                        ? '(' +
+                                          e.labels.toString().toUpperCase() +
+                                          ')'
+                                        : ''
+                                    }`}
                                   </span>
                                 </li>
                               ))
-                            : null}
+                            : ''}
                         </ul>
-                      </div>
-                      <div className="d-flex flex-column align-items-start">
-                        {DEXList.length !== 0
-                          ? DEXList.pairs.map((e, index) => (
-                              <CheckBox title={e.labels} id={e.labels} />
-                            ))
-                          : null}
                       </div>
                     </div>
                   </div>
