@@ -28,7 +28,7 @@ function Sidebar() {
             alt="main_logo"
           />
           <span style={{ fontSize: '20px' }} className="ms-1 font-weight-bold">
-            BOT VIP
+            BOT TRADE
           </span>
         </NavLink>
       </div>

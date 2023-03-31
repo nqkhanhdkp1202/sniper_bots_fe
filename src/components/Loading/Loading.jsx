@@ -1,11 +1,17 @@
-export default function Loading() {
+const sizeSvg = {
+  small: 20,
+  medium: 30,
+  large: 40
+}
+
+export default function Loading({ size = 'medium' }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       style={{ margin: 'auto', background: 'transparent', display: 'block' }}
-      width={30}
-      height={30}
+      width={sizeSvg[size]}
+      height={sizeSvg[size]}
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid"
     >

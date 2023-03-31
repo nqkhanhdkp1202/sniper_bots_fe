@@ -1,16 +1,27 @@
+import moment from 'moment'
 import { useContext } from 'react'
 import { createContext, useState } from 'react'
 
 const LogContext = createContext()
 
 const LogProvider = ({ children, ...restProps }) => {
-  const [logContent, setLogContent] = useState(['Connect metamask...'])
+  const [logContent, setLogContent] = useState([])
 
-  const handleLogContent = value => {
-    setLogContent([...logContent, value])
+  const handleLogContent = (content, textColor = 'dark') => {
+    setLogContent(logContent => [
+      ...logContent,
+      {
+        content: `${moment().format('DD/MM/YYYY HH:mm:ss')} => ${content}`,
+        textColor
+      }
+    ])
   }
 
-  const value = { logContent, handleLogContent }
+  const resetLoggerMessage = () => {
+    setLogContent([])
+  }
+
+  const value = { logContent, handleLogContent, resetLoggerMessage }
   return (
     <LogContext.Provider value={value} {...restProps}>
       {children}

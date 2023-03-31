@@ -1,1 +1,1 @@
-# Bot Trade Vip Pro
+# Bot Trade
